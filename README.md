@@ -51,6 +51,13 @@ Once a response has been retrieved via a call to **get** another call to **get**
 
 Returns the value associated with the *tomlkey* parameter retrieved from the /settings.toml file (or /.env file if settings.toml doesn't exist - *depreciated, /.env file support will be removed in the future*.)
 
+**EXAMPLE /settings.toml FILE**
+```toml
+CIRCUITPY_WIFI_SSID="myssid"
+CIRCUITPY_WIFI_PASSWORD="mypassword"
+CIRCUITPY_WEB_API_PASSWORD="circuitpypw"
+```
+
 `is_connected(*) -> `*`bool`*
 
 Flag indicating whether microcontroller is currently connected to an access point/network.

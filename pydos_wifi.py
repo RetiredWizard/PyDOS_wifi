@@ -1,3 +1,5 @@
+PyDOS_wifi_VER = "1.195"
+
 import os
 import time
 from sys import implementation
