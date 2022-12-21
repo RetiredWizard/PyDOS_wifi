@@ -12,7 +12,7 @@ The currently exposed network API is:
 
 `Pydos_wifi:`*`PyDOS_wifi`*
 
-Instance of class object contained within the library available upon libary import.
+Instance of class object contained within the library, available upon libary import.
 
 `esp:`*`adafruit_esp32spi.ESP_SPIcontrol`*
 
@@ -34,6 +34,7 @@ Timeout in milliseconds used for network operations when option is available in 
 
 Station network.WLAN object when run in MicroPython, None in CircuitPython.
 
+
 `connect(*,ssid:str,passwd:str) -> `*`bool`*
 
 Attempts to connect to an access point using the passed in ssid and password.
@@ -42,13 +43,13 @@ Attempts to connect to an access point using the passed in ssid and password.
 
 Sends an html *GET* command to either port 80 or 443, depending on the HTTP(S) included in the text_url. The specific class of the returned response varies depending on; (1) which Python is running, (2) if the **getJSON** flag is set and (3) if a wifi coprocessor is being utilized. The Pydos_wifi methods **next** and **json** can be used to access the response data without regard to the Python version or microcontroller board type.
 
-When running MicroPython, if the **json** method is going to be used to access the response, the **getJSON** flag must be set to True. If the **next** method is going to be use **getJSON** must be False (or omitted). On CircuitPython, the **getJSON** parameter isn't required but may be used for compatibility.
+When running MicroPython, if the **json** method is going to be used to access the response, the **getJSON** flag must be set to True. If the **next** method is going to be used, **getJSON** must be False (or omitted). On CircuitPython, the **getJSON** parameter is ignored but may be used for compatibility.
 
 Once a response has been retrieved via a call to **get** another call to **get** cannot be made without a closing the response. The response can be closed directly using **response.close()** if the native response supports it (MicroPython and non-coprocessor CircuitPython boards) but attempting to close a CircuitPython response directly currently results in the stream being read until it ends or times out which unless the retrieved html stream is relativly small may effectivly hang the board. **Pydos_wifi.close()** can be used in all cases without hanging the board but requires reconnecting to the AP using **Pydos_wifi.connect** after its use.
 
 `getenv(*,tomlKey:str) -> `*`str`*
 
-Returns the value associated with the *tomlkey* parameter retrieved from the settings.toml file (or .env file if settings.toml doesn't exist - *depreciated, will be removed in the future*.)
+Returns the value associated with the *tomlkey* parameter retrieved from the /settings.toml file (or /.env file if settings.toml doesn't exist - *depreciated, /.env file support will be removed in the future*.)
 
 `is_connected(*) -> `*`bool`*
 
@@ -66,7 +67,7 @@ When using MicroPython, the previous **get** must have been called with **getJSO
 
 Returns the next *size* bytes of the HTTP content as bytes. This is useful in scanning HTTP streams that are larger than would fit in available microcontroller memory.
 
-When using MicroPython, reads attempting to get more data than is available will hang the board (for at least 60 seconds). Either make sure the *size* of data read is less than is available in the stream or set **size** to a single byte (1). If there is no data available to read when the next method is called it will return a btye string of length zero (b'') after **Pydos_wifi.timeout** milliseconds have elapsed. The zero length byte string can be tested for in order to determine the end of data within a loop, assuming you are reading just one byte at a time. **Note** reading the stream one byte at a time may be considerably slower than reading larger chunks.
+When using MicroPython, calls to **read** attempting to get more data than is available will hang the board (for at least 60 seconds). Either make sure the **size** of data read is less than is available in the stream or set **size** to a single byte (1). If there are no data available to read when the next method is called it will return a btye string of length zero (b'') after **Pydos_wifi.timeout** milliseconds have elapsed. The zero length byte string can be tested for in order to determine the end of data within a loop, assuming you are reading just one byte at a time. **Note** reading the stream one byte at a time may be considerably slower than reading larger chunks.
 
 
 The following example programs should run unmodified on ESP32/Pico W/Nano Connect boards running either CircuitPython or MicroPython.
