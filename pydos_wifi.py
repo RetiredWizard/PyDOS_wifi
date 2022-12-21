@@ -47,11 +47,8 @@ class PyDOS_wifi:
     def __init__(self,timeout=15000):
 
         if implementation.name.upper() == "CIRCUITPYTHON":
-
             if board.board_id == 'arduino_nano_rp2040_connect':
                 self._https = requests
-            else:
-                self.wifi_radio = wifi.radio
         elif implementation.name.upper() == 'MICROPYTHON':
             self._socket = socket
             self._https = https
@@ -104,7 +101,6 @@ class PyDOS_wifi:
                 self._spi = busio.SPI(board.SCK1, board.MOSI1, board.MISO1)
 
                 self.esp = adafruit_esp32spi.ESP_SPIcontrol(self._spi, self._esp32_cs, self._esp32_ready, self._esp32_reset)
-
                 self._https.set_socket(socket, self.esp)
 
                 ntrys = 0
@@ -118,7 +114,6 @@ class PyDOS_wifi:
                         print("could not connect to AP, retrying: ", e)
 
                 self.ipaddress = self.esp.pretty_ip(self.esp.ip_address)
-
                 retVal = self.esp.is_connected
             else:
                 wifi.radio.connect(self.getenv('CIRCUITPY_WIFI_SSID'), self.getenv('CIRCUITPY_WIFI_PASSWORD'))
@@ -148,7 +143,6 @@ class PyDOS_wifi:
                     break
 
             retVal = self.wlan.isconnected()
-
             self.ipaddress = self.wlan.ifconfig()[0]
 
         return retVal
