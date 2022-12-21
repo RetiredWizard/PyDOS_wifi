@@ -4,6 +4,18 @@
 
 Whenever possible PyDOS and the bundled external programs work equally well on MicroPython or CircuitPython and on any of the supported micro controller chip families. To assist in reaching this goal PyDOS_wifi, a simplified Wifi library, is being developed which provides a unified Wifi API that works the same under both MicroPython and CircuitPython on ESP32xx, Pico W and Arduino Nano based Microcontrollers.
 
+## External Libraries Needed for CircuitPython
+
+**Espressif ESP32 family, Raspberry Pico W**
+
+- adafruit_requests  
+
+**Arduino Nano Connect**
+
+- adafruit_requests
+- adafruit_esp32spi
+
+
 The currently exposed network API is:
 
 *class* **PyDOS_wifi**
@@ -103,7 +115,7 @@ pswd = Pydos_wifi.getenv('CIRCUITPY_WIFI_PASSWORD')
 result = Pydos_wifi.connect(ssid, pswd) 
 text_url = "https://httpbin.org/get"  
 response = Pydos_wifi.get(text_url)  
-# If running on CircuitPython this loop may be replaced with **getRes = Pydos_wifi.next(1000)**  
+# If running on CircuitPython this loop may be replaced with: getRes = Pydos_wifi.next(1000)  
 getRes = b''  
 nxtByte = None  
 while nxtByte != b'':  
