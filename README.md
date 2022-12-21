@@ -32,11 +32,11 @@ Timeout in milliseconds used for network operations when option is available in 
 
 Station network.WLAN object when run in MicroPython, None in CircuitPython.
 
-`connect(*,ssid:`*`str`*`,passwd:`*`str`*`) -> `*`bool`*
+`connect(*,ssid:str,passwd:str) -> `*`bool`*
 
 Attempts to connect to an access point using the passed in ssid and password.
 
-`get(*,text_url:`*`str`*`,headers:`*`dict`*`=None,getJSON:`*`bool`*`=False) -> `*`class response`*
+`get(*,text_url:str,headers:dict=None,getJSON:bool=False) -> `*`class response`*
 
 Sends an html *GET* command to either port 80 or 443, depending on the HTTP(S) included in the text_url. The specific class of the returned response varies depending on; which Python is running, if the **getJSON** flag is set and if a wifi coprocessor is being utilized. The Pydos_wifi methods **next** and **json** can be used to access the response data without regard to the Python version or microcontroller board type.
 
@@ -44,7 +44,7 @@ When running MicroPython, if the **json** method is going to be used to access t
 
 Once a response has been retrieved via a call to *get* another call to *get* cannot be made without a closing the response. The response can be closed directly using *response.close()* if the native response supports it (MicroPython and non-coprocessor CircuitPython boards) but attempting to close a CircuitPython response directly currently results in the stream being read until it ends or times out which unless the retrieved html stream is relativly small may effectivly hang the board. *Pydos_wifi.close()* can be used in all cases without hanging the board but requires reconnecting to the AP using *Pydos_wifi.connect* after its use.
 
-`getenv(*,tomlKey:`*`str`*`) -> `*`str`*
+`getenv(*,tomlKey:str) -> `*`str`*
 
 Returns the value associated with the *tomlkey* parameter retrieved from the settings.toml file (or .env file if settings.toml doesn't exist) - depreciated, will be removed in the future.
 
@@ -58,7 +58,7 @@ When using MicroPython, the previous **get** must have been called with the getJ
 
 Returns the HTTP content parsed into a json dictionary. This attempts to read all available content and parse it as json. If the data is larger than will fit into memory or is not properly formatted the operation will fail (not gracefully... :).
 
-`next(*,size:`*`int`*`=256) -> `*`bytes`*
+`next(*,size:int=256) -> `*`bytes`*
 
 When using MicroPython, the previous **get** must have been called with default getJSON value or getJSON set to False.
 
