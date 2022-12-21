@@ -16,7 +16,7 @@ Whenever possible PyDOS and the bundled external programs work equally well on M
 - adafruit_esp32spi
 
 
-The currently exposed network API is:
+## Exposed Network API
 
 *class* **PyDOS_wifi**
 
