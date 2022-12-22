@@ -191,6 +191,8 @@ class PyDOS_wifi:
                 self._poller = select.poll()
                 self._poller.register(self.response, select.POLLIN)
             else:
+                if not headers:
+                    headers = {}
                 # urequests response used for json
                 self.response = self._https.get(text_url,headers=headers,timeout=self.timeout)
                 self._poller = None

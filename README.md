@@ -2,7 +2,7 @@
 
 **NOTE:** PyDOS is not required to utlilize this library.
 
-Whenever possible PyDOS and the bundled external programs work equally well on MicroPython or CircuitPython and on any of the supported micro controller chip families. To assist in reaching this goal PyDOS_wifi, a simplified Wifi library, is being developed which provides a unified Wifi API that works the same under both MicroPython and CircuitPython on ESP32xx, Pico W and Arduino Nano based Microcontrollers.
+Whenever possible PyDOS and the bundled external programs work equally well on MicroPython or CircuitPython and on any of the supported micro controller chip families. To assist in reaching this goal PyDOS_wifi, a simplified Wifi library, is being developed which provides a unified Wifi API that works the same under both MicroPython and CircuitPython on ESP32xx, Pico W and Arduino Nano Connect based Microcontrollers.
 
 ## External Libraries Needed for CircuitPython
 
@@ -84,9 +84,9 @@ Returns the HTTP content parsed into a json dictionary. This attempts to read al
 
 When using MicroPython, the previous **get** must have been called with **getJSON** set to False or omitted.
 
-Returns the next *size* bytes of the HTTP content as bytes. This is useful in scanning HTTP streams that are larger than would fit in available microcontroller memory.
+Returns the next **size** bytes of the HTTP content as bytes. This is useful in scanning HTTP streams that are larger than would fit in available microcontroller memory.
 
-When using MicroPython, calls to **read** attempting to get more data than is available will hang the board (for at least 60 seconds). Either make sure the **size** of data read is less than is available in the stream or set **size** to a single byte (1). If there are no data available to read when the next method is called it will return a btye string of length zero (b'') after **Pydos_wifi.timeout** milliseconds have elapsed. The zero length byte string can be tested for in order to determine the end of data within a loop, assuming you are reading just one byte at a time. **Note** reading the stream one byte at a time may be considerably slower than reading larger chunks.
+When using MicroPython, calls to **read** attempting to get more data than is available will hang the board (for at least 60 seconds). Either make sure the **size** of data read is less than is available in the stream or set **size** to a single byte (1). If there are no data available to read when the **next** method is called it will return a btye string of length zero (b'') after **Pydos_wifi.timeout** milliseconds have elapsed. The zero length byte string can be tested for in order to determine the end of data within a loop, assuming you are reading just one byte at a time. **Note** reading the stream one byte at a time may be considerably slower than reading larger chunks.
 
 
 The following example programs should run unmodified on ESP32/Pico W/Nano Connect boards running either CircuitPython or MicroPython.
