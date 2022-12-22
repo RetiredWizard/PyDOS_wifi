@@ -125,3 +125,15 @@ while nxtByte != b'':
 print(getRes.decode('utf-8'))  
 Pydos_wifi.close()  
 ```
+
+**EXAMPLE WIFI PROGRAM TO RETRIEVE JSON DATA**
+```py
+from pydos_wifi import Pydos_wifi  
+ssid = Pydos_wifi.getenv('CIRCUITPY_WIFI_SSID')  
+pswd = Pydos_wifi.getenv('CIRCUITPY_WIFI_PASSWORD')  
+result = Pydos_wifi.connect(ssid, pswd) 
+text_url = "https://httpbin.org/get"  
+response = Pydos_wifi.get(text_url,{},True)  
+print(Pydos_wifi.json())  
+Pydos_wifi.close()  
+```
