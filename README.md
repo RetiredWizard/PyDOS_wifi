@@ -47,9 +47,10 @@ Timeout in milliseconds used for network operations when option is available in 
 Station network.WLAN object when run in MicroPython, None in CircuitPython.
 
 
-`connect(*,ssid:str,passwd:str) -> `*`bool`*
+`connect(*,ssid:str,passwd:str,espspi_debug:bool=False) -> `*`bool`*
 
-Attempts to connect to an access point using the passed in ssid and password.
+Attempts to connect to an access point using the passed in ssid and password.  
+The **espspi_debug** will turn on debug output when using an ESP spi wifi coprocessor with CircuitPython.
 
 `get(*,text_url:str,headers:dict=None,getJSON:bool=False) -> `*`class response`*
 

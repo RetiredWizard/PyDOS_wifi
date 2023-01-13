@@ -1,4 +1,4 @@
-PyDOS_wifi_VER = "1.19.5.1"
+PyDOS_wifi_VER = "1.195.3"
 
 import os
 import time
@@ -28,32 +28,41 @@ elif implementation.name.upper() == 'MICROPYTHON':
     except:
         import socket
     import network
-    import urequests as https
+    try:
+        import urequests as https
+    except:
+        print("***NOTE*** urequests library not available, json queries may not complete")
+        print("https://github.com/micropython/micropython-lib/tree/master/python-ecosys \n")
+        import json
     import select
 
 class PyDOS_wifi:
 
-    timeout = 15000
-    wlan = None
-    esp = None
-    ipaddress = None
-    response = None
-    _spi = None
-    _socket = None
-    _https = None
     _esp32_cs = None
     _esp32_ready = None
     _esp32_reset = None
-    _poller = None
 
     def __init__(self,timeout=15000):
+
+        self.timeout = 15000
+        self.wlan = None
+        self.esp = None
+        self.ipaddress = None
+        self.response = None
+        self._spi = None
+        self._socket = None
+        self._https = None
+        self._poller = None
 
         if implementation.name.upper() == "CIRCUITPYTHON":
             if board.board_id == 'arduino_nano_rp2040_connect':
                 self._https = requests
         elif implementation.name.upper() == 'MICROPYTHON':
             self._socket = socket
-            self._https = https
+            try:
+                self._https = https
+            except:
+                self._https = None
 
     def getenv(self,tomlKey):
         if implementation.name.upper() == "CIRCUITPYTHON":
@@ -91,7 +100,7 @@ class PyDOS_wifi:
         return retVal
 
 
-    def connect(self,ssid,passwd):
+    def connect(self,ssid,passwd,espspi_debug=False):
         if implementation.name.upper() == "CIRCUITPYTHON":
             if board.board_id == 'arduino_nano_rp2040_connect':
                 #  ESP32 pins
@@ -102,7 +111,8 @@ class PyDOS_wifi:
                 #  uses the secondary SPI connected through the ESP32
                 self._spi = busio.SPI(board.SCK1, board.MOSI1, board.MISO1)
 
-                self.esp = adafruit_esp32spi.ESP_SPIcontrol(self._spi, self._esp32_cs, self._esp32_ready, self._esp32_reset)
+                self.esp = adafruit_esp32spi.ESP_SPIcontrol(self._spi, self._esp32_cs, \
+                    self._esp32_ready, self._esp32_reset, debug=espspi_debug)
                 self._https.set_socket(socket, self.esp)
 
                 ntrys = 0
@@ -159,7 +169,7 @@ class PyDOS_wifi:
         if implementation.name.upper() == 'CIRCUITPYTHON':
             self.response = self._https.get(text_url,headers=headers,timeout=self.timeout)
         elif implementation.name.upper() == 'MICROPYTHON':
-            if not getJSON:
+            if not getJSON or not self._https:
                 if len(text_url.split('/',3)) == 4:
                     PROTO, _, HOST, QUERY = text_url.split('/',3)
                     QUERY = "/"+QUERY
@@ -206,6 +216,20 @@ class PyDOS_wifi:
         elif implementation.name.upper() == 'MICROPYTHON':
             if 'json' in dir(self.response):
                 retVal = self.response.json()
+            else:
+                foundStart = False
+                retVal = ''
+                nxtByte = None
+                while nxtByte != b'':
+                    nxtByte = self.next(1)
+                    if foundStart or nxtByte.decode('utf-8') == '{':
+                        retVal += nxtByte.decode('utf-8')
+                        foundStart = True
+
+                if foundStart:
+                    retVal = json.loads(retVal)
+                else:
+                    retVal = {}
 
         return retVal
 
