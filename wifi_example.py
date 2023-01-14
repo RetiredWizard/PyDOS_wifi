@@ -24,6 +24,7 @@ if sys.implementation.name.upper() == 'MICROPYTHON':
     import network,json,select,time,ctypes,struct,random
     def getenv(tomlKey):
         config = {}
+        envfound = True
         try:
             with open('/settings.toml') as envfile:
                 for line in envfile:
