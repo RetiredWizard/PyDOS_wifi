@@ -1,4 +1,4 @@
-PyDOS_wifi_VER = "1.195.3"
+PyDOS_wifi_VER = "1.20"
 
 import os
 import time
@@ -88,14 +88,21 @@ class PyDOS_wifi:
 
         return retVal
 
+    @property
     def is_connected(self):
         if implementation.name.upper() == "CIRCUITPYTHON":
             if board.board_id == 'arduino_nano_rp2040_connect':
-                retVal = self.esp.is_connected
+                if self.esp != None:
+                    retVal = self.esp.is_connected
+                else:
+                    retVal = False
             else:
                 retVal = wifi.radio.ipv4_address is not None
         elif implementation.name.upper() == "MICROPYTHON":
-            retVal = wlan.isconnected()
+            if self.wlan != None:
+                retVal = self.wlan.isconnected()
+            else:
+                retVal = False
 
         return retVal
 
@@ -103,50 +110,57 @@ class PyDOS_wifi:
     def connect(self,ssid,passwd,espspi_debug=False):
         if implementation.name.upper() == "CIRCUITPYTHON":
             if board.board_id == 'arduino_nano_rp2040_connect':
-                #  ESP32 pins
-                self._esp32_cs = DigitalInOut(board.CS1)
-                self._esp32_ready = DigitalInOut(board.ESP_BUSY)
-                self._esp32_reset = DigitalInOut(board.ESP_RESET)
+                if not self.is_connected:
+                    #  ESP32 pins
+                    self._esp32_cs = DigitalInOut(board.CS1)
+                    self._esp32_ready = DigitalInOut(board.ESP_BUSY)
+                    self._esp32_reset = DigitalInOut(board.ESP_RESET)
 
-                #  uses the secondary SPI connected through the ESP32
-                self._spi = busio.SPI(board.SCK1, board.MOSI1, board.MISO1)
+                    #  uses the secondary SPI connected through the ESP32
+                    self._spi = busio.SPI(board.SCK1, board.MOSI1, board.MISO1)
 
-                self.esp = adafruit_esp32spi.ESP_SPIcontrol(self._spi, self._esp32_cs, \
-                    self._esp32_ready, self._esp32_reset, debug=espspi_debug)
-                self._https.set_socket(socket, self.esp)
+                    self.esp = adafruit_esp32spi.ESP_SPIcontrol(self._spi, self._esp32_cs, \
+                        self._esp32_ready, self._esp32_reset, debug=espspi_debug)
+                    self._https.set_socket(socket, self.esp)
 
-                ntrys = 0
-                while not self.esp.is_connected and ntrys < 3:
-                    if ntrys == 0:
-                        print("Connecting to AP...")
-                    ntrys += 1
-                    try:
-                        self.esp.connect_AP(self.getenv('CIRCUITPY_WIFI_SSID'), self.getenv('CIRCUITPY_WIFI_PASSWORD'))
-                    except RuntimeError as e:
-                        print("could not connect to AP, retrying: ", e)
+                    ntrys = 0
+                    while not self.is_connected and ntrys < 3:
+                        if ntrys == 0:
+                            print("Connecting to AP...")
+                        ntrys += 1
+                        try:
+                            self.esp.connect_AP(self.getenv('CIRCUITPY_WIFI_SSID'), self.getenv('CIRCUITPY_WIFI_PASSWORD'))
+                        except RuntimeError as e:
+                            print("could not connect to AP, retrying: ", e)
 
-                self.ipaddress = self.esp.pretty_ip(self.esp.ip_address)
-                retVal = self.esp.is_connected
+                    self.ipaddress = self.esp.pretty_ip(self.esp.ip_address)
+                retVal = self.is_connected
             else:
                 wifi.radio.connect(self.getenv('CIRCUITPY_WIFI_SSID'), self.getenv('CIRCUITPY_WIFI_PASSWORD'))
                 self._socket = socketpool.SocketPool(wifi.radio)
                 self._https = requests.Session(self._socket, ssl.create_default_context())
 
                 self.ipaddress = wifi.radio.ipv4_address
-                retVal = self.is_connected()
+                retVal = self.is_connected
 
         elif implementation.name.upper() == "MICROPYTHON":
             self.wlan = network.WLAN(network.STA_IF)
             if not self.wlan.active():
                 # Init wlan module and connect to network
-                print("Trying to connect. Note this may take a while...")
+                print("Setting up Network connection")
 
                 self.wlan.active(True)
                 self.wlan.connect(self.getenv('CIRCUITPY_WIFI_SSID'),self.getenv('CIRCUITPY_WIFI_PASSWORD'))
 
             # Wait until wifi is connected
             tStamp = time.ticks_ms()
-            while not self.wlan.isconnected():
+            if not self.is_connected:
+                print("Trying to connect. Note this may take a while...")
+            while not self.is_connected:
+                try:
+                    self.wlan.connect(self.getenv('CIRCUITPY_WIFI_SSID'),self.getenv('CIRCUITPY_WIFI_PASSWORD'))
+                except:
+                    pass
                 tElapse = time.ticks_ms() - tStamp
                 if tElapse < 0:
                     tStamp = time.ticks_ms()
@@ -154,7 +168,7 @@ class PyDOS_wifi:
                 if tElapse > self.timeout:
                     break
 
-            retVal = self.wlan.isconnected()
+            retVal = self.is_connected
             self.ipaddress = self.wlan.ifconfig()[0]
 
         return retVal
@@ -262,6 +276,8 @@ class PyDOS_wifi:
     def close(self):
         if implementation.name.upper() == 'CIRCUITPYTHON':
             if board.board_id == 'arduino_nano_rp2040_connect':
+                self.esp.disconnect()
+                self.esp = None
                 self._esp32_cs.deinit()
                 self._esp32_ready.deinit()
                 self._esp32_reset.deinit()
