@@ -6,6 +6,8 @@ Whenever possible PyDOS and the bundled external programs work equally well on M
 
 ## External Libraries Needed for CircuitPython
 
+- adafruit_connection_manager  
+
 **Espressif ESP32 family, Raspberry Pico W**
 
 - adafruit_requests  

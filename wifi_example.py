@@ -21,7 +21,7 @@ if sys.implementation.name.upper() == 'MICROPYTHON':
     except:
         import _socket
     import urequests as https
-    import network,json,select,time,ctypes,struct,random
+    import network,json,select,time,uctypes,struct,random
     def getenv(tomlKey):
         config = {}
         envfound = True
@@ -113,14 +113,14 @@ elif sys.implementation.name.upper() == 'MICROPYTHON':
     # prepare packet
     pkt = b'Q'*size
     pkt_desc = {
-        "type": ctypes.UINT8 | 0,
-        "code": ctypes.UINT8 | 1,
-        "checksum": ctypes.UINT16 | 2,
-        "id": ctypes.UINT16 | 4,
-        "seq": ctypes.INT16 | 6,
-        "timestamp": ctypes.UINT64 | 8,
+        "type": uctypes.UINT8 | 0,
+        "code": uctypes.UINT8 | 1,
+        "checksum": uctypes.UINT16 | 2,
+        "id": uctypes.UINT16 | 4,
+        "seq": uctypes.INT16 | 6,
+        "timestamp": uctypes.UINT64 | 8,
     } # packet header descriptor
-    h = ctypes.struct(ctypes.addressof(pkt), pkt_desc, ctypes.BIG_ENDIAN)
+    h = uctypes.struct(uctypes.addressof(pkt), pkt_desc, uctypes.BIG_ENDIAN)
     h.type = 8 # ICMP_ECHO_REQUEST
     h.code = 0
     h.checksum = 0
@@ -169,7 +169,7 @@ elif sys.implementation.name.upper() == 'MICROPYTHON':
             if socks:
                 resp = socks[0][0].recv(4096)
                 resp_mv = memoryview(resp)
-                h2 = ctypes.struct(ctypes.addressof(resp_mv[20:]), pkt_desc, ctypes.BIG_ENDIAN)
+                h2 = uctypes.struct(uctypes.addressof(resp_mv[20:]), pkt_desc, uctypes.BIG_ENDIAN)
                 # TODO: validate checksum (optional)
                 seq = h2.seq
                 if h2.type==0 and h2.id==h.id and (seq in seqs): # 0: ICMP_ECHO_REPLY
