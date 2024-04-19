@@ -11,17 +11,25 @@
 import sys
 from os import uname
 try:
-    import ussl as ssl
-except:
     import ssl
+except:
+    raise Exception("Only runs on ESP32 Family and PicoW boards + Micropython only: ESP32Spi (Nano Connect) ")
 
-if sys.implementation.name.upper() == 'MICROPYTHON':
+if sys.implementation.name.upper() == 'CIRCUITPYTHON':
+    import socketpool
+    import wifi
+    from os import getenv
+    import adafruit_requests as requests
+    import ipaddress
+
+elif sys.implementation.name.upper() == 'MICROPYTHON':
     try:
         import usocket as _socket
     except:
         import _socket
-    import urequests as https
+    import requests as https
     import network,json,select,time,uctypes,struct,random
+
     def getenv(tomlKey):
         config = {}
         envfound = True
@@ -49,13 +57,6 @@ if sys.implementation.name.upper() == 'MICROPYTHON':
             cs = (cs & 0xffff) + (cs >> 16)
         cs = ~cs & 0xffff
         return cs
-
-elif sys.implementation.name.upper() == 'CIRCUITPYTHON':
-    import socketpool
-    import wifi
-    from os import getenv
-    import adafruit_requests as requests
-    import ipaddress
 
 # Get wifi details and more from a .env file
 if getenv('CIRCUITPY_WIFI_SSID') is None:
@@ -335,4 +336,7 @@ print("-" * 40)
 
 response.close()
 if sys.implementation.name.upper() == 'CIRCUITPYTHON':
-    https._free_sockets()
+    try:
+        https._free_sockets()
+    except:
+        pass
